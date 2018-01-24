@@ -1,0 +1,20 @@
+#!/bin/bash
+
+para_1=jieli
+para_2=gaoteng
+para_3=config
+
+if [ "$1" == "$para_1" ]; then
+pwd
+
+elif [ "$1" == "$para_2" ]; then
+git remote add origin git@github.com:gaoteng17/Face_Recognition_System.git
+
+elif [ "$1" == "$para_3" ]; then
+git config --global user.email "1512510237@qq.com"
+git config --global user.name "ZXQLLJ"
+
+fi
+
+
+
