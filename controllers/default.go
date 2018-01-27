@@ -4,19 +4,17 @@ import (
 	"os/exec"
 	"github.com/astaxie/beego"
 	"fmt"
-	"encoding/json"
+	//"encoding/json"
 	"quickstart/models"
 	//"path"
 	//"strings"
 )
 
+//default Controller without using
 type MainController struct {
 	beego.Controller
 }
-
-
-
-
+//test Controller without using
 type IdentityController struct{
 	beego.Controller
 }
@@ -29,13 +27,14 @@ type Identity struct{
 	Parameters string
 }
 
-
+//default get method without using
 func (c *MainController) Get() {
 	fmt.Println("dsoivhodsvsd")
 	c.Data["Website"] = "beego.me"
 	c.Data["Email"] = "astaxie@gmail.com"
 	c.TplName = "index.tpl"
 }
+
 
 func checkout(School_id string) (string) {
     file1 := "/root/img/tmp/"+School_id+".jpg"
@@ -54,48 +53,50 @@ func checkout(School_id string) (string) {
     return string(buf)
 }
 
-func (this *IdentityController) Post() {
+/*function for test*/
 
-	var ob Identity
-    err:=json.Unmarshal(this.Ctx.Input.RequestBody, &ob)
-    if err==nil{
-    	fmt.Println("Unmarshal Success")
-    }
+// func (this *IdentityController) Post() {
+
+// 	var ob Identity
+//     err:=json.Unmarshal(this.Ctx.Input.RequestBody, &ob)
+//     if err==nil{
+//     	fmt.Println("Unmarshal Success")
+//     }
     
-    fmt.Println(string(this.Ctx.Input.RequestBody))
-    fmt.Println(ob)
-    fmt.Println(ob.School_id)
-    fmt.Println(ob.Name)
-    fmt.Println(ob.Class)
+//     fmt.Println(string(this.Ctx.Input.RequestBody))
+//     fmt.Println(ob)
+//     fmt.Println(ob.School_id)
+//     fmt.Println(ob.Name)
+//     fmt.Println(ob.Class)
 
-    iden:=models.Identity{0,ob.School_id,ob.Name,ob.Class}
-    result := ""    
+//     iden:=models.Identity{0,ob.School_id,ob.Name,ob.Class}
+//     result := ""    
 
-    switch ob.Options{
-    case "delete":
-    	iden.RemoveIdentity()
-    case "update":
-    	iden.UpdateIdentity(ob.Parameters)
-    case "insert":
-    	iden.AddIdentity()
-    case "search":
-    	iden.SerachIdentity()
-    case "checkout":
-	result=checkout(ob.School_id)
-    default:
-    	fmt.Println("options error")
-    }
+//     switch ob.Options{
+//     case "delete":
+//     	iden.RemoveIdentity()
+//     case "update":
+//     	iden.UpdateIdentity(ob.Parameters)
+//     case "insert":
+//     	iden.AddIdentity()
+//     case "search":
+//     	iden.SerachIdentity()
+//     case "checkout":
+// 	result=checkout(ob.School_id)
+//     default:
+//     	fmt.Println("options error")
+//     }
  
 
-    switch ob.Options{
-    case "checkout":
-        this.Data["json"] = map[string]interface{}{"result": result, "msg": "checkout over"}
-    default: 
-        this.Data["json"] = map[string]interface{}{"result": true, "msg": "Success"}
-    }    
+//     switch ob.Options{
+//     case "checkout":
+//         this.Data["json"] = map[string]interface{}{"result": result, "msg": "checkout over"}
+//     default: 
+//         this.Data["json"] = map[string]interface{}{"result": true, "msg": "Success"}
+//     }    
 
-    this.ServeJSON()
-}
+//     this.ServeJSON()
+// }
 
 
 
@@ -117,31 +118,58 @@ func (this *ImgController)Post(){
 	this.Ctx.Input.Bind(&name, "name") 
 	var class string
 	this.Ctx.Input.Bind(&class, "class") 
+    var options string
+    this.Ctx.Input.Bind(&options, "options") 
+    var parameters string 
+    this.Ctx.Input.Bind(&parameters,"parameters")
 
 	fmt.Println(school_id)
 	fmt.Println(name)
 	fmt.Println(class)
+    fmt.Println(options)
+
 
 	f,_,err:=this.GetFile("img")
     if err != nil {
         fmt.Println("getfile error ")
     }
 
-    // fileName := h.Filename 
-    // arr:=strings.Split(fileName, ":")
-    // if len(arr) > 1 {   
-    //   index:=len(arr)-1
-    //   fileName=arr[index]
-    // }
-
     f.Close()
 
+    //save img to temp path
     err=this.SaveToFile("img","/root/img/tmp/"+school_id+".jpg")
     if err != nil {
         fmt.Println("save tmpfile error")
         fmt.Println(err)
     }
 
-    
+    var result string
+    //database table struct
+    iden:=models.Identity{0,school_id,name,class}
+    //judge options
+    switch options{
+    case "delete":
+        iden.RemoveIdentity()
+    case "update":
+        iden.UpdateIdentity(parameters)
+    case "insert":
+        iden.AddIdentity()
+    case "search":
+        iden.SerachIdentity()
+    case "checkout": 
+    result=checkout(school_id)
+    default:
+        fmt.Println("options error")
+    }
+
+    //message return to the client
+    switch options{
+    case "checkout":
+        this.Data["json"] = map[string]interface{}{"result": result, "msg": "checkout over"}
+    default: 
+        this.Data["json"] = map[string]interface{}{"result": true, "msg": "Success"}
+    }    
+
+    this.ServeJSON()
 }
 
