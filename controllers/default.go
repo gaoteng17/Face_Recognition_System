@@ -8,6 +8,7 @@ import (
 	"quickstart/models"
 	//"path"
 	//"strings"
+    "os"
 )
 
 //default Controller without using
@@ -32,7 +33,8 @@ func (c *MainController) Get() {
 	fmt.Println("dsoivhodsvsd")
 	c.Data["Website"] = "beego.me"
 	c.Data["Email"] = "astaxie@gmail.com"
-	c.TplName = "index.tpl"
+    //c.TplName = "index.tpl"
+    c.TplName = "index.html"
 }
 
 
@@ -50,7 +52,22 @@ func checkout(School_id string) (string) {
         fmt.Println(err)
     }
     fmt.Println(string(buf))
-    return string(buf)
+    result:=string(buf)
+    //judge result
+    if(result[0]=='T'){
+        err := os.Rename(file1,file2)
+        if err != nil {
+            fmt.Println("move tmp file failed")
+        }
+        return "present"
+    }else if(result[0]=='F'){
+        err := os.Remove(file1)
+        if err != nil {
+            fmt.Println("delete tmp file failed")
+        }
+        return "absent"
+    }
+    return ""
 }
 
 /*function for test*/
@@ -129,19 +146,19 @@ func (this *ImgController)Post(){
     fmt.Println(options)
 
 
-	f,_,err:=this.GetFile("img")
-    if err != nil {
-        fmt.Println("getfile error ")
-    }
+	// f,_,err:=this.GetFile("img")
+ //    if err != nil {
+ //        fmt.Println("getfile error ")
+ //    }
 
-    f.Close()
+ //    f.Close()
 
-    //save img to temp path
-    err=this.SaveToFile("img","/root/img/tmp/"+school_id+".jpg")
-    if err != nil {
-        fmt.Println("save tmpfile error")
-        fmt.Println(err)
-    }
+ //    //save img to temp path
+ //    err=this.SaveToFile("img","/root/img/tmp/"+school_id+".jpg")
+ //    if err != nil {
+ //        fmt.Println("save tmpfile error")
+ //        fmt.Println(err)
+ //    }
 
     var result string
     //database table struct
@@ -157,10 +174,15 @@ func (this *ImgController)Post(){
     case "search":
         iden.SerachIdentity()
     case "checkout": 
-    result=checkout(school_id)
+    //result=checkout(school_id)
+    result="debug"
+    //store results
+    rest:=models.Results{0,school_id,class,"","",result}
+    rest.AddRecords()
     default:
         fmt.Println("options error")
     }
+
 
     //message return to the client
     switch options{

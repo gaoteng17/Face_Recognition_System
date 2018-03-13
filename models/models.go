@@ -6,6 +6,29 @@ import(
 	"fmt"
 )
 
+type Results struct{
+	Id int
+	School_id string
+	Class_Name string
+	Class_Time string
+	Class_Teacher string
+	Class_State string
+}
+
+func (rest *Results)AddRecords(){
+	o:=orm.NewOrm()
+
+	p,err:=o.Raw("insert into records(Id,School_id,Class_Name,Class_Time,Class_Teacher,Class_State) VALUES(?,?,?,?,?,?);").Prepare()
+	if err!=nil{
+		fmt.Println("Records Insert Failed")
+	}
+	_,err=p.Exec(rest.Id,rest.School_id,rest.Class_Name,rest.Class_Time,rest.Class_Teacher,rest.Class_State)
+	if err!=nil{
+		fmt.Println("Records Insert Failed")
+	}
+	p.Close()
+}
+
 type Identity struct{
 	Id int
 	School_id string
